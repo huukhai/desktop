@@ -23,6 +23,23 @@ export async function getGitDescription(
   }
 }
 
+/** Synchronous Get the repository's description from the .git/description file. */
+export function getGitDescriptionSync(
+  repositoryPath: string
+): string {
+  const path = Path.join(repositoryPath, GitDescriptionPath)
+
+  try {
+    const data = FSE.readFileSync(path, 'utf8')
+    if (data === DefaultGitDescription) {
+      return ''
+    }
+    return data
+  } catch (err) {
+    return ''
+  }
+}
+
 /** Write a .git/description file to the repository. */
 export async function writeGitDescription(
   repositoryPath: string,

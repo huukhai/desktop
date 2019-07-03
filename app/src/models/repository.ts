@@ -2,6 +2,7 @@ import * as Path from 'path'
 
 import { GitHubRepository } from './github-repository'
 import { IAheadBehind } from './branch'
+import { getGitDescriptionSync } from '../lib/git'
 
 function getBaseName(path: string): string {
   const baseName = Path.basename(path)
@@ -13,6 +14,13 @@ function getBaseName(path: string): string {
   }
 
   return baseName
+}
+
+function getName(path: string): string {
+  const description = getGitDescriptionSync(path)
+  const baseName = getBaseName(path)
+
+  return description === '' ? baseName : `${baseName} - ${description.length > 20 ? description.substring(0, 20) + '...' : description}`
 }
 
 /** A local repository. */
@@ -29,7 +37,7 @@ export class Repository {
     public readonly gitHubRepository: GitHubRepository | null,
     public readonly missing: boolean
   ) {
-    this.name = (gitHubRepository && gitHubRepository.name) || getBaseName(path)
+    this.name = (gitHubRepository && gitHubRepository.name) || getName(path)
   }
 
   /**
@@ -40,7 +48,7 @@ export class Repository {
   public get hash(): string {
     return `${this.id}+${this.gitHubRepository && this.gitHubRepository.hash}+${
       this.path
-    }+${this.missing}+${this.name}`
+      }+${this.missing}+${this.name}`
   }
 }
 
